@@ -70,7 +70,7 @@ public class MainAction implements Action{
 					} else {
 						startPoint = ((startPoint - 1) * 10) + 1;
 						if (Integer.valueOf(page) > Math.ceil((double) list.size() / 10)) {// 페이징 화살표 처리시 startpoint가 list의 범위를 벗어날 경우
-							if(list.size()%5==0) { // 전체 개시물의 수가 5로 나눴을 때 딱 맞을 경우
+							if(list.size()%10==0) { // 전체 개시물의 수가 5로 나눴을 때 딱 맞을 경우
 								startPoint = list.size()-9;
 							}
 							else {
