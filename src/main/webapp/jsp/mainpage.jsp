@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="vo.BoardVO" %>
@@ -15,7 +16,36 @@
 </style>
 </head>
 <body>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/mainpage.js"></script>
+<script>
+function dislpayDiv(number){ // 새로운 글을 작성하는 함수
+	let value = (document.getElementById("userinfo")) //사용자에 대한 정보를 받아온다.
+	if(number==1){
+		if(value.innerText==='사용자 : 비회원'){
+			alert("로그인 하셔야 작성이 가능합니다.") // 비회원일 경우 사용 불가능
+		}
+		else{
+			// 비회원일 경우 글 작성 가능, write라는 id를 가진 태그를 보여주고 add라는 id를 가진 태그를 숨긴다.
+			document.getElementById("write").style.display='block';
+			document.getElementById("add").style.display='none';	
+		}
+	}
+}
+
+function reject(){ // 글 작성 취소
+	document.getElementById("write").style.display='none';
+	document.getElementById("add").style.display='block';	
+}
+
+function reload(){ // 새로고침 함수 : 조회수 최신 반영이 안되어 있을 경우 실행
+	let value = (document.getElementById("userinfo"))
+	if(value.innerText==='사용자 : 비회원'){
+		alert("로그인 하셔야 사용 가능합니다.")
+	}
+	else{
+		window.location.reload();
+	}
+}
+</script>
 
 <%
 List<String> userList = new ArrayList<String>();
@@ -69,27 +99,39 @@ else{
 %>
 		 <td><%= value.getReadCount()%></td>
 		 <td><%= value.getReplyCount()%></td>
-		 <td><%= value.getWriteDate()%></td></tr>	 
+		 <td><%= value.getWriteDate()%></td></tr> 
 <%	
 	}
  %>
 </table>
-<%
-   List<BoardVO> totalList = (List<BoardVO>)request.getAttribute("totalpage");
-   int totalPage = totalList.size();
-   if(totalPage==0){
-	   totalPage=list.size();
-   }
-   else{
-	   int endPage = (int)Math.ceil((double)totalPage/10);
-	   for(int i=1; i<=endPage; i++){
-	%>
-		<a href="<%= request.getContextPath() %>/board?page=<%=i %>" style="font-size:20px; text-decoration-line:none;"><%=i    %>  </a>
-	<%   
-	   }  
-   }
-   %>
-<h3>총 글의 개수 : <%= totalPage%></h3>
+		<c:if test = "${paging[0]>10}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]-10}" style="font-size:20px; text-decoration-line:none; color:red;" >◀◀◀</a>
+		</c:if>
+		<c:if test = "${paging[0]>5}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]-5}" style="font-size:20px; text-decoration-line:none; color:green;">◀◀</a>
+		</c:if>
+		<c:if test = "${paging[0]>1}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]-1}" style="font-size:20px; text-decoration-line:none; color:black;">◀</a>
+		</c:if>
+		
+		<c:forEach  begin="${paging[0]}" end="${paging[1]}"  step="1" var="page">
+			<a href="${pageContext.servletContext.contextPath}/board?position=${paging[0]}&page=${page}" style="font-size:20px; text-decoration-line:none;">${page}</a>
+		</c:forEach>
+		
+		<c:if test = "${Math.ceil(list.size()/10) - paging[0]>=1}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]+1}" style="font-size:20px; text-decoration-line:none; color:black;">▶</a>
+		</c:if>
+		<c:if test = "${Math.ceil(list.size()/10) - paging[0]>=5}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]+5}" style="font-size:20px; text-decoration-line:none; color:green;">▶▶</a>
+		</c:if>
+		<c:if test = "${Math.ceil(list.size()/10) - paging[0]>=10}">
+		<a href="${pageContext.servletContext.contextPath}/board?arrow=arrow&page=${paging[0]+10}" style="font-size:20px; text-decoration-line:none; color:red;">▶▶▶</a>
+		</c:if>
+		
+		
+
+
+<h3>총 글의 개수 : ${totalpage.size()}</h3>
 <form method=get action="<%= request.getContextPath() %>/board"> 
 <input type="hidden" name="action" value="search">
 <select name="condition">
